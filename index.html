@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>철근정착이윤기리</title>
+<meta name="theme-color" content="#0c1726">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="철근정착이윤기리">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<style>
+/* A안 블루프린트: 도면 모눈 배경 + 상단 결과(히어로) + 하단 고정 직경 독. 단일 다크 테마 */
+:root {
+  --bg: #0c1726; --panel: #111f33; --panel2: #132439; --line: #22395a; --line2: #2f4d74;
+  --ink: #e8eef6; --sub: #8fb3df; --mute: #6c86a6; --blue: #2b6cc4; --blue2: #6fb1ff;
+  --yel: #ffcf4a; --yel-ink: #1a1300; --red: #ff7a59;
+  --ui: "Noto Sans KR", "Noto Sans CJK KR", "Apple SD Gothic Neo", Roboto, sans-serif;
+  --num: "SF Mono", "Roboto Mono", "DejaVu Sans Mono", Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+[hidden] { display: none !important; }
+html, body { background: var(--bg); color: var(--ink); font-family: var(--ui); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+body {
+  background-image: linear-gradient(rgba(120,170,230,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(120,170,230,.06) 1px, transparent 1px);
+  background-size: 20px 20px; background-attachment: fixed;
+  -webkit-user-select: none; user-select: none;
+}
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+button:focus-visible { outline: 2px solid var(--blue2); outline-offset: 2px; }
+.num { font-family: var(--num); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+
+.wrap { max-width: 520px; margin: 0 auto;
+  padding: calc(env(safe-area-inset-top, 0px) + 14px) max(16px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 112px) max(16px, env(safe-area-inset-left, 0px)); }
+.top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 10px; }
+.top h1 { font-size: 19px; font-weight: 700; letter-spacing: -0.01em; }
+.top .tag { font-size: 10.5px; border: 1px solid #3c5a80; color: var(--sub); padding: 3px 7px; border-radius: 3px; white-space: nowrap; }
+
+.conds { display: flex; gap: 6px; margin: 0 -16px 14px; padding: 0 16px 2px; overflow-x: auto; scrollbar-width: none; }
+.conds::-webkit-scrollbar { display: none; }
+.pill { flex: none; }
+.pill { font-size: 12.5px; padding: 7px 11px; border-radius: 999px; background: #16263b; border: 1px solid #2a4263; color: #c9d8ea; display: inline-flex; align-items: center; gap: 4px; }
+.pill b { color: var(--blue2); font-weight: 600; }
+.pill::after { content: ""; width: 6px; height: 6px; border-right: 1.5px solid var(--mute); border-bottom: 1.5px solid var(--mute); transform: rotate(45deg) translateY(-2px); margin-left: 4px; }
+.pill:active { background: #1d3350; }
+
+.hero { border: 1px solid var(--line2); background: linear-gradient(180deg, var(--panel2), #0f1d30); border-radius: 14px; padding: 16px 18px; }
+.hero-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.hero .lbl { font-size: 12.5px; color: var(--sub); }
+.hero .bar { font-size: 13px; color: #9fb4cc; text-align: right; line-height: 1.2; }
+.hero .bar b { color: #fff; font-size: 22px; display: block; }
+.hero .v { font-size: 52px; font-weight: 700; color: #fff; line-height: 1.1; margin-top: 2px; }
+.hero .v small { font-size: 16px; color: var(--sub); margin-left: 4px; font-weight: 400; letter-spacing: 0; }
+.hero .alt { font-size: 12px; color: var(--mute); margin-top: 2px; }
+.hero .alt b { color: var(--ink); font-weight: 600; }
+.splice { display: grid; gap: 5px; margin-top: 14px; }
+.rb { height: 7px; border-radius: 4px; background: #c9d8ea; width: 72%; }
+.rb.y { background: var(--yel); width: 72%; margin-left: 28%; }
+.dim { height: 26px; position: relative; margin-top: 4px; }
+.dim .l { position: absolute; left: 28%; right: 28%; top: 12px; height: 1px; background: var(--blue2); }
+.dim .l::before, .dim .l::after { content: ""; position: absolute; top: -6px; width: 1px; height: 13px; background: var(--blue2); }
+.dim .l::before { left: 0; } .dim .l::after { right: 0; }
+.dim .t { position: absolute; left: 50%; transform: translateX(-50%); top: 2px; background: #10203a; padding: 0 6px; font-size: 11px; color: var(--blue2); white-space: nowrap; }
+.toggle { display: flex; margin-top: 10px; background: #0b1625; border: 1px solid #2a4263; border-radius: 9px; padding: 3px; }
+.toggle button { flex: 1; text-align: center; font-size: 12.5px; padding: 7px 4px; border-radius: 7px; color: var(--sub); }
+.toggle button.on { background: var(--blue); color: #fff; font-weight: 600; }
+.blocked { margin-top: 10px; padding: 12px; border-radius: 10px; background: rgba(255,122,89,.12); color: var(--red); font-size: 13px; font-weight: 500; }
+
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+.cell { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 11px 13px; min-width: 0; }
+.cell .k { font-size: 11.5px; color: var(--sub); }
+.cell .v { font-size: 24px; font-weight: 700; margin-top: 2px; }
+.cell .v small { font-size: 11px; color: var(--mute); margin-left: 2px; font-weight: 400; letter-spacing: 0; }
+.cell .s { font-size: 10.5px; color: var(--mute); margin-top: 1px; }
+.cell.hl .v { color: var(--yel); }
+
+.actions { display: flex; gap: 8px; margin-top: 12px; }
+.actions button { flex: 1; padding: 11px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); font-size: 13px; color: #c9d8ea; }
+.actions button:active { background: #1a2d47; }
+
+.sec { margin-top: 18px; }
+.sec-h { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 4px 2px 8px; font-size: 13px; font-weight: 600; color: #c9d8ea; }
+.sec-h span:last-child { font-size: 11px; color: var(--mute); font-weight: 400; }
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); -webkit-overflow-scrolling: touch; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { padding: 8px 8px; text-align: right; white-space: nowrap; }
+th { font-size: 10.5px; color: var(--sub); font-weight: 600; background: #0f1b2c; border-bottom: 1px solid var(--line); }
+td { font-family: var(--num); font-variant-numeric: tabular-nums; border-top: 1px solid #1a2b44; }
+td:first-child, th:first-child { text-align: left; font-weight: 700; padding-left: 12px; }
+tbody tr.sel td { background: rgba(255,207,74,.14); color: var(--yel); }
+td.na { color: var(--mute); text-align: center; }
+td.diff { position: relative; }
+td.diff::after { content: ""; position: absolute; top: 6px; right: 2px; width: 4px; height: 4px; border-radius: 50%; background: var(--red); }
+.legend { font-size: 10.5px; color: var(--mute); margin-top: 6px; padding-left: 2px; }
+pre.calc { white-space: pre-wrap; word-break: keep-all; font-family: var(--num); font-size: 11.5px; line-height: 1.7; color: #c9d8ea; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+pre.calc em { font-style: normal; color: var(--blue2); }
+.notes { font-size: 11.5px; color: var(--mute); display: grid; gap: 4px; padding: 0 2px 0 18px; }
+
+.dock { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: rgba(9,18,30,.96); border-top: 1px solid var(--line);
+  padding: 10px max(12px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 14px) max(12px, env(safe-area-inset-left, 0px));
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.dock-in { max-width: 520px; margin: 0 auto; }
+.dock .lab { font-size: 11px; color: var(--mute); margin: 0 4px 7px; }
+.chips { display: grid; grid-template-columns: repeat(9, 1fr); gap: 5px; }
+.chips button { text-align: center; padding: 10px 0; border-radius: 9px; font-size: 13.5px; background: #15253a; color: #a9bdd6; border: 1px solid var(--line); font-family: var(--num); }
+.chips button.on { background: var(--yel); color: var(--yel-ink); font-weight: 700; border-color: var(--yel); }
+.chips button.x { opacity: .45; }
+
+.scrim { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 20; }
+.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 21; background: #101d30; border-top: 1px solid var(--line2); border-radius: 18px 18px 0 0;
+  padding: 10px max(18px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 18px) max(18px, env(safe-area-inset-left, 0px));
+  max-height: 80vh; overflow-y: auto; animation: up .18s ease-out; }
+@keyframes up { from { transform: translateY(40px); } to { transform: none; } }
+.sheet-in { max-width: 520px; margin: 0 auto; display: grid; gap: 16px; }
+.grab { width: 38px; height: 4px; border-radius: 2px; background: #33507a; margin: 0 auto 4px; }
+.sheet h2 { font-size: 16px; font-weight: 700; }
+.grp .gl { font-size: 11.5px; color: var(--sub); margin-bottom: 7px; }
+.opts { display: flex; flex-wrap: wrap; gap: 7px; }
+.opts button { padding: 10px 14px; border-radius: 10px; border: 1px solid var(--line); background: #15253a; font-size: 14px; color: #c9d8ea; min-width: 56px; }
+.opts button.on { background: var(--blue); border-color: var(--blue); color: #fff; font-weight: 600; }
+.opts button small { display: block; font-size: 10.5px; color: inherit; opacity: .7; font-weight: 400; }
+.custom { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 12px; color: var(--mute); }
+.custom input { width: 96px; padding: 9px 10px; border-radius: 9px; border: 1px solid var(--line); background: #0b1625; color: var(--ink); font-family: var(--num); font-size: 15px; -webkit-user-select: text; user-select: text; }
+.done { width: 100%; padding: 13px; border-radius: 11px; background: var(--blue); color: #fff; font-weight: 600; font-size: 15px; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 120px); z-index: 30; background: #e8eef6; color: #0c1726; padding: 9px 16px; border-radius: 9px; font-size: 13px; font-weight: 600; }
+@media (prefers-reduced-motion: reduce) { .sheet { animation: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><h1>철근정착이윤기리</h1><span class="tag num">KDS 14 20 52</span></div>
+  <div class="conds" id="conds"></div>
+
+  <section class="hero" id="hero"></section>
+  <div class="grid" id="grid"></div>
+  <div class="actions">
+    <button type="button" id="btn-copy">결과 복사</button>
+    <button type="button" id="btn-bars">전체 직경표 보기</button>
+  </div>
+
+  <div class="sec" id="sec-table">
+    <div class="sec-h"><span id="tbl-title">전체 직경표</span><span>mm</span></div>
+    <div class="tbl-wrap"><table id="tbl"></table></div>
+    <div class="legend">행을 누르면 직경 선택 · 빨간 점: 반올림과 올림 결과가 다른 칸</div>
+  </div>
+
+  <div class="sec">
+    <button type="button" class="sec-h" id="calc-h"><span>계산 근거</span><span id="calc-arrow">펼치기</span></button>
+    <pre class="calc" id="calc" hidden></pre>
+  </div>
+
+  <div class="sec">
+    <div class="sec-h"><span>주기 (도면 기준)</span><span></span></div>
+    <ol class="notes">
+      <li>슬래브·벽체·기초 철근 간격 100mm(기초 @150 이상은 150mm). 기초 피복: 하부 D22 이하 80, D25 이상 100, 상부 70mm.</li>
+      <li>보·기둥은 순간격 33.3mm(D35 34.9mm), 피복 50mm 기준. D35 순간격 34.9mm 미만이면 인장값 ×1.5.</li>
+      <li>트랜스퍼 플레이트·내수압슬래브는 기초 값 적용.</li>
+      <li>압축이음이 인장이음보다 길면 인장이음길이 적용 가능.</li>
+      <li>상부철근: 아래로 300mm 넘게 콘크리트를 친 수평철근(α=1.3).</li>
+      <li>대부분 B급 이음 적용. A급은 철근량 2배 이상이고 이음 철근량 1/2 이하인 경우.</li>
+      <li>피복 확보: 측면 피복 70mm 이상, 90° 갈고리 넘어선 부분 50mm 이상.</li>
+      <li>다발철근 3개 20%, 4개 33% 증가. D35 초과는 기계적 이음.</li>
+      <li>일반 콘크리트, 도막 없는 이형철근에만 적용.</li>
+    </ol>
+  </div>
+</div>
+
+<nav class="dock"><div class="dock-in">
+  <div class="lab" id="dock-lab">철근 직경</div>
+  <div class="chips" id="chips"></div>
+</div></nav>
+
+<div class="scrim" id="scrim" hidden></div>
+<div class="sheet" id="sheet" hidden role="dialog" aria-modal="true"><div class="sheet-in" id="sheet-in"></div></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+// 철근 정착·이음길이 계산 엔진 (도면 내장 Excel '철근이음정착길이' 수식 이식)
+const BARS = [10, 13, 16, 19, 22, 25, 29, 32, 35];
+const DB = { 10: 9.53, 13: 12.7, 16: 15.9, 19: 19.1, 22: 22.2, 25: 25.4, 29: 28.6, 32: 31.8, 35: 34.9 };
+
+// 10mm 단위 처리: 'round' = Excel ROUND(x,-1) 반올림(도면 표), 'up' = ROUNDUP(x,-1) 올림(안전측)
+let RND = 'round';
+function r10(x, mode) {
+  const v = Number((x / 10).toFixed(6));
+  const m = mode || RND;
+  return Math.sign(v) * (m === 'up' ? Math.ceil(Math.abs(v)) : Math.round(Math.abs(v))) * 10;
+}
+
+// SD600 최소 배근간격 / 최소 피복두께 (도면 주기 3)
+const SD600_MIN = { 10: [0, 20], 13: [0, 30], 16: [80, 30], 19: [95, 40], 22: [111, 50], 25: [127, 60], 29: [143, 60], 32: [159, 70], 35: [175, 70] };
+
+// 부재별 c (피복 또는 철근 중심간격의 1/2 중 작은 값)
+function cValue(p, bar) {
+  const db = DB[bar];
+  const hi = p.fy === 600; // SD600: 최소 피복·간격 표 적용
+  switch (p.member) {
+    case 'slab': {
+      let cover = p.cover; // 20 / 30 / 40(이상)
+      if (hi && cover >= 40) cover = Math.max(50, SD600_MIN[bar][1]);
+      const half = hi ? Math.max(50, SD600_MIN[bar][0] / 2) : 50;
+      return { c: Math.min(cover + db / 2, half), cover, half };
+    }
+    case 'footing': {
+      const cover = p.top ? 70 : (bar <= 22 ? 80 : 100);
+      let half = p.spacing === 'lt150' ? 50 : 75;
+      if (hi) half = Math.max(half, SD600_MIN[bar][0] / 2);
+      return { c: Math.min(cover + db / 2, half), cover, half };
+    }
+    default: { // beam, column
+      const half = Math.max(db, 25, 33.3);
+      return { c: Math.min(50 + db / 2, half), cover: 50, half };
+    }
+  }
+}
+
+function tension(p, bar) {
+  const db = DB[bar], fy = p.fy, rf = Math.sqrt(p.fck);
+  const gamma = bar <= 19 ? 0.8 : 1;
+  const alpha = p.top && (p.member === 'footing' || p.member === 'beam') ? 1.3 : 1;
+  const cv = cValue(p, bar);
+  const raw = cv.c / db;
+  const k = p.trans ? Math.min(Math.max(2.25, raw), 2.5) : Math.min(raw, 2.5);
+  const precA = Math.max(r10((0.9 * db * fy) / rf * (gamma * alpha / k)), 300);
+  const precB = Math.max(r10((1.3 * 0.9 * db * fy) / rf * (gamma * alpha / k)), 300);
+  const simpA = Math.max(r10(0.6 * db * fy / rf * gamma * alpha), 300);
+  const simpB = Math.max(r10(1.3 * 0.6 * db * fy / rf * gamma * alpha), 300);
+  return {
+    db, gamma, alpha, ...cv, raw, k,
+    precA, precB, simpA, simpB,
+    A: Math.min(precA, simpA), B: Math.min(precB, simpB),
+  };
+}
+
+function hook(p, bar) {
+  const db = DB[bar], rf = Math.sqrt(p.fck);
+  const min8 = r10(8 * db);
+  const base = r10(0.24 * db * p.fy / rf);
+  const red = r10(0.24 * db * p.fy / rf * 0.7);
+  return { base, red, min8, hk: Math.max(base, 150, min8), hk7: Math.max(red, 150, min8) };
+}
+
+function compression(p, bar) {
+  const db = DB[bar], fy = p.fy, rf = Math.sqrt(p.fck);
+  const d1 = r10(0.25 * db * fy / rf), d2 = r10(0.043 * db * fy);
+  const s1 = r10((1.4 * fy / rf - 52) * db);
+  const s2 = fy <= 400 ? r10(0.072 * fy * db) : r10((0.13 * fy - 24) * db);
+  return { d1, d2, s1, s2, cd: Math.max(d1, d2, 200), cs: Math.max(Math.min(s1, s2), 300) };
+}
+
+// SD600 : 최소 피복/간격 미충족 조합 (도면 표기 '-')
+function sd600Blocked(p, bar) {
+  if (p.fy !== 600) return null;
+  if (p.member === 'slab') {
+    if (p.cover <= 20 && bar > 10) return '피복 20mm는 D10만 적용 가능 (SD600 최소피복)';
+    if (p.cover <= 30 && bar > 16) return '피복 30mm는 D16 이하만 적용 가능 (SD600 최소피복)';
+  }
+  if (p.member === 'footing' && p.spacing === 'lt150' && bar > 19)
+    return '@150 미만 간격은 D19 이하만 적용 가능 (SD600 최소간격)';
+  return null;
+}
+
+function calcAll(p, bar) {
+  const prev = RND;
+  RND = p.rnd === 'up' ? 'up' : 'round';
+  try {
+    return { bar, rnd: RND, t: tension(p, bar), h: hook(p, bar), c: compression(p, bar), blocked: sd600Blocked(p, bar) };
+  } finally { RND = prev; }
+}
+
+if (typeof module !== 'undefined') module.exports = { BARS, DB, calcAll, r10 };
+
+
+const MEMBERS = [['slab', '슬래브·벽체', '내수압슬래브·지하외벽 포함'], ['footing', '기초', '트랜스퍼 플레이트 포함'], ['beam', '보', ''], ['column', '기둥', '']];
+const FCKS = [21, 24, 27, 30, 35, 40, 45, 50];
+const FYS = [[400, 'SD400'], [500, 'SD500'], [550, 'SD550'], [600, 'SD600']];
+const RN = { round: '반올림', up: '올림' };
+const state = { member: 'beam', fck: 27, fy: 500, bar: 22, cover: 20, spacing: 'lt150', top: true, trans: false, rnd: 'round', showCalc: false };
+try { const s = JSON.parse(localStorage.getItem('rebar-ld-app') || 'null'); if (s) Object.assign(state, s); } catch (e) {}
+const save = () => { try { localStorage.setItem('rebar-ld-app', JSON.stringify(state)); } catch (e) {} };
+const $ = (id) => document.getElementById(id);
+const fmt = (v) => Number(v).toLocaleString('ko-KR');
+const bn = (b) => (state.fy === 600 ? 'UHD' : 'D') + b;
+const mName = (id) => MEMBERS.find(m => m[0] === id)[1];
+
+function params(extra) {
+  const p = { member: state.member, fck: state.fck, fy: state.fy, cover: state.cover, spacing: state.spacing, rnd: state.rnd };
+  p.top = (p.member === 'footing' || p.member === 'beam') ? state.top : false;
+  p.trans = (p.member === 'beam' || p.member === 'column') && p.fy === 600 ? state.trans : false;
+  return Object.assign(p, extra || {});
+}
+function detailText() {
+  const m = state.member, t = [];
+  if (m === 'slab') t.push(state.cover >= 40 ? '피복 40↑' : '피복 ' + state.cover);
+  if (m === 'footing') t.push(state.spacing === 'lt150' ? '@150 미만' : '@150 이상');
+  if (m === 'footing' || m === 'beam') t.push(state.top ? '상부' : (m === 'footing' ? '하부' : '일반'));
+  if ((m === 'beam' || m === 'column') && state.fy === 600) t.push(state.trans ? '횡철근구간' : '일반구간');
+  return t.join(' · ');
+}
+function condPlain() {
+  const d = detailText();
+  return [mName(state.member), 'fck ' + state.fck, FYS.find(f => f[0] === state.fy)[1], d, RN[state.rnd]].filter(Boolean).join(' · ');
+}
+
+function render() {
+  save();
+  const p = params(), b = state.bar;
+  const o = calcAll(p, b), oR = calcAll(params({ rnd: 'round' }), b), oU = calcAll(params({ rnd: 'up' }), b);
+
+  // 조건 pill
+  const d = detailText();
+  $('conds').innerHTML =
+    `<button class="pill" data-sheet="member"><b>부재</b>${mName(state.member)}</button>` +
+    `<button class="pill" data-sheet="fck"><b>fck</b>${state.fck}</button>` +
+    `<button class="pill" data-sheet="fy"><b>철근</b>${FYS.find(f => f[0] === state.fy)[1]}</button>` +
+    (d ? `<button class="pill" data-sheet="detail"><b>세부</b>${d}</button>` : '');
+  $('conds').querySelectorAll('[data-sheet]').forEach(el => el.onclick = () => openSheet(el.dataset.sheet));
+
+  // 히어로: B급 인장이음
+  const alt = (f) => {
+    const a = f(oR), u = f(oU);
+    return `반올림 ${state.rnd === 'round' ? '<b>' + fmt(a) + '</b>' : fmt(a)} · 올림 ${state.rnd === 'up' ? '<b>' + fmt(u) + '</b>' : fmt(u)}${a !== u ? ' (+' + (u - a) + ')' : ''}`;
+  };
+  const toggle = `<div class="toggle"><button data-rnd="round" class="${state.rnd === 'round' ? 'on' : ''}">반올림 · 도면 표</button><button data-rnd="up" class="${state.rnd === 'up' ? 'on' : ''}">올림 · 안전측</button></div>`;
+  if (o.blocked) {
+    $('hero').innerHTML = `<div class="hero-row"><div class="lbl">B급 인장이음길이</div><div class="bar">직경<b class="num">${bn(b)}</b></div></div>
+      <div class="v num">—</div><div class="blocked">${o.blocked}<br>도면 표에서 '-'(적용 불가)로 표기되는 조합입니다.</div>${toggle}`;
+  } else {
+    $('hero').innerHTML = `<div class="hero-row"><div class="lbl">B급 인장이음길이</div><div class="bar">직경<b class="num">${bn(b)}</b></div></div>
+      <div class="v num">${fmt(o.t.B)}<small>mm</small></div>
+      <div class="alt num">${alt(x => x.t.B)}</div>
+      <div class="splice" aria-hidden="true"><div class="rb"></div><div class="rb y"></div></div>
+      <div class="dim" aria-hidden="true"><div class="l"></div><div class="t num">Ls = ${fmt(o.t.B)}</div></div>${toggle}`;
+  }
+  $('hero').querySelectorAll('[data-rnd]').forEach(el => el.onclick = () => { state.rnd = el.dataset.rnd; render(); });
+
+  // 2x2
+  const cell = (k, v, s, hl) => `<div class="cell${hl ? ' hl' : ''}"><div class="k">${k}</div><div class="v num">${v}<small>mm</small></div><div class="s num">${s}</div></div>`;
+  $('grid').innerHTML =
+    cell('인장정착 Ld (A급 이음)', o.blocked ? '—' : fmt(o.t.A), o.blocked ? '적용 불가' : alt(x => x.t.A), true) +
+    cell('표준갈고리 Ldh', fmt(o.h.hk), '피복확보 ' + fmt(o.h.hk7) + ' · ' + (state.rnd === 'round' ? '올림 ' + fmt(oU.h.hk) : '반올림 ' + fmt(oR.h.hk))) +
+    cell('압축정착 Ldc', fmt(o.c.cd), alt(x => x.c.cd)) +
+    cell('압축이음', fmt(o.c.cs), alt(x => x.c.cs));
+
+  // 표
+  $('tbl-title').textContent = '전체 직경표 · ' + condPlain();
+  const head = '<thead><tr><th>직경</th><th>Ld</th><th>B급</th><th>Ldh</th><th>Ldh확보</th><th>Ldc</th><th>압축이음</th></tr></thead>';
+  const rows = BARS.map(x => {
+    const q = calcAll(p, x), r = calcAll(params({ rnd: 'round' }), x), u = calcAll(params({ rnd: 'up' }), x);
+    const td = (f) => `<td class="${f(r) !== f(u) ? 'diff' : ''}">${fmt(f(q))}</td>`;
+    const t = q.blocked ? '<td class="na">-</td><td class="na">-</td>' : td(z => z.t.A) + td(z => z.t.B);
+    return `<tr data-bar="${x}" class="${x === b ? 'sel' : ''}"><td>${bn(x)}</td>${t}${td(z => z.h.hk)}${td(z => z.h.hk7)}${td(z => z.c.cd)}${td(z => z.c.cs)}</tr>`;
+  }).join('');
+  $('tbl').innerHTML = head + '<tbody>' + rows + '</tbody>';
+  $('tbl').querySelectorAll('tbody tr').forEach(tr => tr.onclick = () => { state.bar = +tr.dataset.bar; render(); });
+
+  // 계산 근거
+  $('calc').hidden = !state.showCalc;
+  $('calc-arrow').textContent = state.showCalc ? '접기' : '펼치기';
+  if (state.showCalc) $('calc').innerHTML = calcText(p, b, o);
+
+  // 독
+  $('dock-lab').textContent = '철근 직경 (' + (state.fy === 600 ? 'UHD' : 'D') + ')';
+  $('chips').innerHTML = BARS.map(x => {
+    const bl = calcAll(p, x).blocked;
+    return `<button data-bar="${x}" class="${x === b ? 'on' : ''}${bl ? ' x' : ''}">${x}</button>`;
+  }).join('');
+  $('chips').querySelectorAll('button').forEach(el => el.onclick = () => { state.bar = +el.dataset.bar; render(); });
+}
+
+function calcText(p, b, o) {
+  const t = o.t, db = DB[b], fy = p.fy, rf = Math.sqrt(p.fck);
+  const n1 = (x) => (Math.round(x * 10) / 10).toFixed(1), n2 = (x) => (Math.round(x * 100) / 100).toFixed(2);
+  const R = (x) => `${n1(x)} → 반올림 ${fmt(r10(x, 'round'))} / 올림 ${fmt(r10(x, 'up'))}`;
+  const gA = t.gamma * t.alpha;
+  const cl = (p.member === 'slab' || p.member === 'footing')
+    ? `c = min(피복 ${t.cover} + db/2, 간격/2 ${n2(t.half)}) = ${n2(t.c)}`
+    : `c = min(50 + db/2, max(db,25,33.3) = ${n2(t.half)}) = ${n2(t.c)}`;
+  const kl = p.trans ? `(c+Ktr)/db = min(max(2.25, ${n2(t.raw)}), 2.5) = ${n2(t.k)} (횡철근구간)` : `(c+Ktr)/db = min(${n2(t.raw)}, 2.5) = ${n2(t.k)}`;
+  return `<em>[인장정착 Ld]</em>
+db ${db}, fy ${fy}, √fck ${rf.toFixed(3)}, α ${t.alpha}, γ ${t.gamma}
+${cl}
+${kl}
+정밀식 0.9·db·fy/√fck·αγ/k   ${R(0.9 * db * fy / rf * gA / t.k)}
+간편식 0.6·db·fy/√fck·αγ     ${R(0.6 * db * fy / rf * gA)}
+채택 min(정밀, 간편, ≥300) = ${o.blocked ? '적용 불가' : fmt(t.A)}
+B급 1.3×  정밀 ${R(1.3 * 0.9 * db * fy / rf * gA / t.k)}
+          간편 ${R(1.3 * 0.6 * db * fy / rf * gA)}
+          채택 ${o.blocked ? '적용 불가' : fmt(t.B)}
+
+<em>[표준갈고리 Ldh]</em>
+0.24·db·fy/√fck  ${R(0.24 * db * fy / rf)}
+피복확보 ×0.7     ${R(0.24 * db * fy / rf * 0.7)}
+최소 max(8db = ${fmt(o.h.min8)}, 150) → ${fmt(o.h.hk)} / ${fmt(o.h.hk7)}
+
+<em>[압축]</em>
+Ldc 0.25·db·fy/√fck ${R(0.25 * db * fy / rf)}
+    0.043·db·fy     ${R(0.043 * db * fy)}  → ${fmt(o.c.cd)} (최소 200)
+이음 (1.4fy/√fck−52)db ${R((1.4 * fy / rf - 52) * db)}
+     ${fy <= 400 ? '0.072·fy·db   ' : '(0.13fy−24)db '} ${R(fy <= 400 ? 0.072 * fy * db : (0.13 * fy - 24) * db)}
+     → ${fmt(o.c.cs)} (최소 300)`;
+}
+
+// ── 선택 시트 ──
+function opts(list, cur, key, cast) {
+  return `<div class="opts">${list.map(([v, n, s]) => `<button data-k="${key}" data-v="${v}" class="${String(v) === String(cur) ? 'on' : ''}">${n}${s ? '<small>' + s + '</small>' : ''}</button>`).join('')}</div>`;
+}
+function openSheet(kind) {
+  let html = '<div class="grab"></div>';
+  if (kind === 'member') html += '<h2>부재</h2>' + opts(MEMBERS.map(m => [m[0], m[1], m[2]]), state.member, 'member');
+  if (kind === 'fck') html += `<h2>콘크리트 강도 fck (MPa)</h2>${opts(FCKS.map(v => [v, v]), state.fck, 'fck')}
+    <div class="custom">직접 입력 <input id="fck-in" type="number" inputmode="decimal" min="18" max="80" placeholder="예: 32" value="${FCKS.includes(state.fck) ? '' : state.fck}"> MPa</div>
+    <button class="done" id="sheet-done">완료</button>`;
+  if (kind === 'fy') html += '<h2>철근 강도</h2>' + opts(FYS.map(f => [f[0], f[1]]), state.fy, 'fy');
+  if (kind === 'detail') {
+    const m = state.member;
+    html += '<h2>세부 조건</h2>';
+    if (m === 'slab') html += '<div class="grp"><div class="gl">피복두께</div>' + opts([[20, '20mm'], [30, '30mm'], [40, '40mm 이상']], state.cover, 'cover') + '</div>';
+    if (m === 'footing') html += '<div class="grp"><div class="gl">철근 간격</div>' + opts([['lt150', '@150 미만'], ['ge150', '@150 이상']], state.spacing, 'spacing') + '</div>';
+    if (m === 'footing' || m === 'beam') html += '<div class="grp"><div class="gl">철근 위치 (상부철근 α=1.3)</div>' + opts([['n', m === 'footing' ? '하부(일반)' : '일반철근'], ['t', '상부철근']], state.top ? 't' : 'n', 'top') + '</div>';
+    if ((m === 'beam' || m === 'column') && state.fy === 600) html += '<div class="grp"><div class="gl">구간 (SD600)</div>' + opts([['n', '일반구간'], ['t', '횡철근구간', '띠철근·스터럽 배치']], state.trans ? 't' : 'n', 'trans') + '</div>';
+    html += '<button class="done" id="sheet-done">완료</button>';
+  }
+  $('sheet-in').innerHTML = html;
+  $('sheet').hidden = false; $('scrim').hidden = false;
+  $('sheet-in').querySelectorAll('[data-k]').forEach(el => el.onclick = () => {
+    const k = el.dataset.k, v = el.dataset.v;
+    if (k === 'fck' || k === 'fy' || k === 'cover') state[k] = +v;
+    else if (k === 'top' || k === 'trans') state[k] = v === 't';
+    else state[k] = v;
+    render();
+    if (kind === 'detail' || kind === 'fck') { openSheet(kind); return; }
+    closeSheet();
+  });
+  const fin = $('fck-in');
+  if (fin) fin.oninput = () => { const v = parseFloat(fin.value); if (v >= 18 && v <= 80) { state.fck = v; render(); $('sheet-in').querySelectorAll('[data-k="fck"]').forEach(x => x.classList.remove('on')); } };
+  const dn = $('sheet-done'); if (dn) dn.onclick = closeSheet;
+}
+function closeSheet() { $('sheet').hidden = true; $('scrim').hidden = true; }
+$('scrim').onclick = closeSheet;
+
+// ── 버튼 ──
+let tt;
+function toast(m) { const el = $('toast'); el.textContent = m; el.hidden = false; clearTimeout(tt); tt = setTimeout(() => el.hidden = true, 1600); }
+$('btn-copy').onclick = () => {
+  const o = calcAll(params(), state.bar);
+  const s = o.blocked ? `[${condPlain()}] ${bn(state.bar)}: ${o.blocked}`
+    : `[${condPlain()}] ${bn(state.bar)}\n인장정착(A급이음) ${o.t.A}mm / B급이음 ${o.t.B}mm\n표준갈고리 ${o.h.hk}mm (피복확보 ${o.h.hk7}mm)\n압축정착 ${o.c.cd}mm / 압축이음 ${o.c.cs}mm`;
+  if (window.AndroidApp && AndroidApp.copy) { AndroidApp.copy(s); return; }
+  const fallback = () => {
+    const ta = document.createElement('textarea'); ta.value = s; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); toast('복사했습니다'); } catch (e) { toast('복사할 수 없습니다'); }
+    ta.remove();
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(s).then(() => toast('복사했습니다'), fallback);
+  else fallback();
+};
+$('btn-bars').onclick = () => $('sec-table').scrollIntoView({ behavior: 'smooth', block: 'start' });
+$('calc-h').onclick = () => { state.showCalc = !state.showCalc; render(); };
+
+render();
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "철근정착이윤기리",
+  "short_name": "철근정착이윤기리",
+  "description": "철근 정착·이음길이 계산기 (KDS 41 2022 / 구조일반사항 3.2 표 기준)",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0c1726",
+  "theme_color": "#0c1726",
+  "lang": "ko",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
