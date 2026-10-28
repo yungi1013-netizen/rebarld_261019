@@ -1,5 +1,5 @@
 // 오프라인 캐시: 한 번 열면 인터넷 없이 실행. 화면 수정 후 배포 시 VERSION 숫자를 올리세요.
-const VERSION = 'rebar-ld-v1';
+const VERSION = 'rebar-ld-1.0-20261028';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(VERSION).then(c => c.addAll(FILES))); self.skipWaiting(); });
 self.addEventListener('activate', e => {
