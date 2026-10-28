@@ -96,8 +96,25 @@ td.na { color: var(--mute); text-align: center; }
 td.diff { position: relative; }
 td.diff::after { content: ""; position: absolute; top: 6px; right: 2px; width: 4px; height: 4px; border-radius: 50%; background: var(--red); }
 .legend { font-size: 10.5px; color: var(--mute); margin-top: 6px; padding-left: 2px; }
-pre.calc { white-space: pre-wrap; word-break: keep-all; font-family: var(--num); font-size: 11.5px; line-height: 1.7; color: #c9d8ea; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
-pre.calc em { font-style: normal; color: var(--blue2); }
+.calc { display: grid; gap: 10px; }
+.st { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px; display: grid; gap: 6px; min-width: 0; }
+.sh { font-size: 13px; font-weight: 700; color: #dce7f4; display: flex; align-items: center; gap: 7px; }
+.sn { color: var(--yel); font-size: 14px; }
+.eq { font-family: var(--num); font-size: 11.5px; line-height: 1.75; color: #c9d8ea; overflow-wrap: anywhere; }
+.eq b { color: var(--yel); }
+.eq .o { color: var(--mute); }
+.nt { font-size: 11px; color: var(--mute); line-height: 1.5; }
+.nt b { color: var(--sub); }
+.warn { font-size: 12px; color: var(--red); background: rgba(255,122,89,.12); border-radius: 10px; padding: 10px 12px; }
+.ver { font-size: 10.5px; border: 1px solid var(--yel); color: var(--yel); padding: 3px 8px; border-radius: 3px; white-space: nowrap; }
+.tags { display: flex; gap: 6px; align-items: center; }
+.hist { display: grid; gap: 14px; }
+.credit { text-align: center; font-size: 11px; color: var(--mute); margin-top: 14px; }
+.credit-s { font-size: 11.5px; color: var(--mute); }
+.hv { display: grid; gap: 4px; }
+.hv h3 { font-size: 14px; font-weight: 700; display: flex; gap: 8px; align-items: baseline; }
+.hv h3 span { font-size: 11px; color: var(--mute); font-weight: 400; font-family: var(--num); }
+.hv ul { padding-left: 18px; font-size: 12.5px; color: #c9d8ea; display: grid; gap: 3px; }
 .notes { font-size: 11.5px; color: var(--mute); display: grid; gap: 4px; padding: 0 2px 0 18px; }
 
 .dock { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: rgba(9,18,30,.96); border-top: 1px solid var(--line);
@@ -132,7 +149,7 @@ pre.calc em { font-style: normal; color: var(--blue2); }
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><h1>철근정착이윤기리</h1><span class="tag num">KDS 14 20 52</span></div>
+  <div class="top"><h1>철근정착이윤기리</h1><div class="tags"><span class="tag num">KDS 14 20 52</span><button type="button" class="ver num" id="btn-ver">v1.0</button></div></div>
   <div class="conds" id="conds"></div>
 
   <section class="hero" id="hero"></section>
@@ -149,8 +166,8 @@ pre.calc em { font-style: normal; color: var(--blue2); }
   </div>
 
   <div class="sec">
-    <button type="button" class="sec-h" id="calc-h"><span>계산 근거</span><span id="calc-arrow">펼치기</span></button>
-    <pre class="calc" id="calc" hidden></pre>
+    <button type="button" class="sec-h" id="calc-h"><span>계산 근거 · 풀이식 (선택 직경)</span><span id="calc-arrow">펼치기</span></button>
+    <div class="calc" id="calc" hidden></div>
   </div>
 
   <div class="sec">
@@ -167,6 +184,8 @@ pre.calc em { font-style: normal; color: var(--blue2); }
       <li>일반 콘크리트, 도막 없는 이형철근에만 적용.</li>
     </ol>
   </div>
+  <div class="actions"><button type="button" id="btn-hist">업데이트 내역 · v1.0</button></div>
+  <div class="credit">철근정착이윤기리 v1.0 · 제작 YG · 문의 yungi1013@naver.com</div>
 </div>
 
 <nav class="dock"><div class="dock-in">
@@ -224,7 +243,8 @@ function tension(p, bar) {
   const alpha = p.top && (p.member === 'footing' || p.member === 'beam') ? 1.3 : 1;
   const cv = cValue(p, bar);
   const raw = cv.c / db;
-  const k = p.trans ? Math.min(Math.max(2.25, raw), 2.5) : Math.min(raw, 2.5);
+  const trans = p.trans && p.fy === 600 && (p.member === 'beam' || p.member === 'column');
+  const k = trans ? Math.min(Math.max(2.25, raw), 2.5) : Math.min(raw, 2.5);
   const precA = Math.max(r10((0.9 * db * fy) / rf * (gamma * alpha / k)), 300);
   const precB = Math.max(r10((1.3 * 0.9 * db * fy) / rf * (gamma * alpha / k)), 300);
   const simpA = Math.max(r10(0.6 * db * fy / rf * gamma * alpha), 300);
@@ -373,36 +393,89 @@ function render() {
 }
 
 function calcText(p, b, o) {
-  const t = o.t, db = DB[b], fy = p.fy, rf = Math.sqrt(p.fck);
-  const n1 = (x) => (Math.round(x * 10) / 10).toFixed(1), n2 = (x) => (Math.round(x * 100) / 100).toFixed(2);
-  const R = (x) => `${n1(x)} → 반올림 ${fmt(r10(x, 'round'))} / 올림 ${fmt(r10(x, 'up'))}`;
-  const gA = t.gamma * t.alpha;
-  const cl = (p.member === 'slab' || p.member === 'footing')
-    ? `c = min(피복 ${t.cover} + db/2, 간격/2 ${n2(t.half)}) = ${n2(t.c)}`
-    : `c = min(50 + db/2, max(db,25,33.3) = ${n2(t.half)}) = ${n2(t.c)}`;
-  const kl = p.trans ? `(c+Ktr)/db = min(max(2.25, ${n2(t.raw)}), 2.5) = ${n2(t.k)} (횡철근구간)` : `(c+Ktr)/db = min(${n2(t.raw)}, 2.5) = ${n2(t.k)}`;
-  return `<em>[인장정착 Ld]</em>
-db ${db}, fy ${fy}, √fck ${rf.toFixed(3)}, α ${t.alpha}, γ ${t.gamma}
-${cl}
-${kl}
-정밀식 0.9·db·fy/√fck·αγ/k   ${R(0.9 * db * fy / rf * gA / t.k)}
-간편식 0.6·db·fy/√fck·αγ     ${R(0.6 * db * fy / rf * gA)}
-채택 min(정밀, 간편, ≥300) = ${o.blocked ? '적용 불가' : fmt(t.A)}
-B급 1.3×  정밀 ${R(1.3 * 0.9 * db * fy / rf * gA / t.k)}
-          간편 ${R(1.3 * 0.6 * db * fy / rf * gA)}
-          채택 ${o.blocked ? '적용 불가' : fmt(t.B)}
+  const t = o.t, db = DB[b], fy = p.fy, fck = p.fck, rf = Math.sqrt(fck);
+  const md = p.rnd === 'up' ? 'up' : 'round', MN = md === 'up' ? '올림' : '반올림', ON = md === 'up' ? '반올림' : '올림';
+  const d1 = (x) => x.toLocaleString('ko-KR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const d2 = (x) => x.toLocaleString('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const rr = (x) => r10(x, md), other = (x) => r10(x, md === 'up' ? 'round' : 'up');
+  const res = (x) => `= ${d1(x)} → <b>${fmt(rr(x))}</b> mm <span class="o">(${MN}${rr(x) !== other(x) ? ' · ' + ON + ' ' + fmt(other(x)) : ''})</span>`;
+  const step = (n, title, body) => `<div class="st"><div class="sh"><span class="sn">${n}</span>${title}</div>${body}</div>`;
+  const eq = (...lines) => `<div class="eq">${lines.join('<br>')}</div>`;
+  const note = (s) => `<div class="nt">${s}</div>`;
+  const base = 0.9 * db * fy / rf, gA = t.gamma * t.alpha;
+  const posTxt = t.alpha === 1.3 ? '상부철근 (아래로 300mm 넘게 콘크리트를 친 수평철근)' : '상부철근 아님';
+  let out = '';
+  if (o.blocked) out += `<div class="warn">${o.blocked} — 인장 정착·이음길이는 도면 표에서 '-'(적용 불가)입니다. 아래 풀이는 참고용입니다.</div>`;
 
-<em>[표준갈고리 Ldh]</em>
-0.24·db·fy/√fck  ${R(0.24 * db * fy / rf)}
-피복확보 ×0.7     ${R(0.24 * db * fy / rf * 0.7)}
-최소 max(8db = ${fmt(o.h.min8)}, 150) → ${fmt(o.h.hk)} / ${fmt(o.h.hk7)}
+  out += step('①', '입력값', eq(
+    `db (${bn(b)} 공칭지름) = ${db} mm`,
+    `fy (${FYS.find(f => f[0] === fy)[1]} 항복강도) = ${fy} MPa`,
+    `fck (콘크리트 강도) = ${fck} MPa → √fck = √${fck} = ${rf.toFixed(3)}`));
 
-<em>[압축]</em>
-Ldc 0.25·db·fy/√fck ${R(0.25 * db * fy / rf)}
-    0.043·db·fy     ${R(0.043 * db * fy)}  → ${fmt(o.c.cd)} (최소 200)
-이음 (1.4fy/√fck−52)db ${R((1.4 * fy / rf - 52) * db)}
-     ${fy <= 400 ? '0.072·fy·db   ' : '(0.13fy−24)db '} ${R(fy <= 400 ? 0.072 * fy * db : (0.13 * fy - 24) * db)}
-     → ${fmt(o.c.cs)} (최소 300)`;
+  out += step('②', '보정계수', eq(
+    `α (철근 위치) = ${t.alpha.toFixed(1)}  ← ${posTxt}`,
+    `β (에폭시 도막) = 1.0  ← 도막 없는 철근`,
+    `γ (철근 크기) = ${t.gamma.toFixed(1)}  ← ${b <= 19 ? 'D19 이하' : 'D22 이상'}`,
+    `λ (경량콘크리트) = 1.0  ← 일반 콘크리트`));
+
+  let cEq;
+  if (p.member === 'slab' || p.member === 'footing') {
+    cEq = eq(`c = min(피복 + db/2, 철근 중심간격/2)`,
+             `&nbsp;&nbsp;= min(${t.cover} + ${db}/2, ${d2(t.half * 2)}/2)`,
+             `&nbsp;&nbsp;= min(${d2(t.cover + db / 2)}, ${d2(t.half)}) = <b>${d2(t.c)}</b> mm`);
+  } else {
+    cEq = eq(`c = min(피복 50 + db/2, 간격 기준값 max(db, 25, 33.3))`,
+             `&nbsp;&nbsp;= min(50 + ${db}/2, max(db, 25, 33.3))`,
+             `&nbsp;&nbsp;= min(${d2(50 + db / 2)}, ${d2(t.half)}) = <b>${d2(t.c)}</b> mm`);
+  }
+  const kEq = p.trans
+    ? eq(`(c + Ktr)/db = max(2.25, c/db) ≤ 2.5   ← SD600 횡철근구간`, `&nbsp;&nbsp;= max(2.25, ${d2(t.c)}/${db} = ${d2(t.raw)}) = <b>${d2(t.k)}</b>`)
+    : eq(`(c + Ktr)/db = c/db ≤ 2.5   (Ktr = 0, 안전측)`, `&nbsp;&nbsp;= ${d2(t.c)} / ${db} = ${d2(t.raw)}${t.raw > 2.5 ? ' → 상한 2.5' : ''} → <b>${d2(t.k)}</b>`);
+  out += step('③', '피복·간격 지수 (c + Ktr)/db', note('c : 철근 중심에서 콘크리트 표면까지 거리와 철근 중심간격의 1/2 중 작은 값') + cEq + kEq);
+
+  out += step('④', '인장정착길이 — 정밀식', eq(
+    `Ld = 0.9·db·fy / (λ·√fck) × αβγ / ((c+Ktr)/db)`,
+    `&nbsp;&nbsp;= 0.9 × ${db} × ${fy} / ${rf.toFixed(3)} × (${t.alpha.toFixed(1)}×1.0×${t.gamma.toFixed(1)}) / ${d2(t.k)}`,
+    `&nbsp;&nbsp;= ${d1(base)} × ${gA.toFixed(2)} / ${d2(t.k)}`,
+    `&nbsp;&nbsp;${res(base * gA / t.k)}`));
+  out += step('⑤', '인장정착길이 — 간편식', eq(
+    `Ld = 0.6·db·fy / √fck × αγ`,
+    `&nbsp;&nbsp;= 0.6 × ${db} × ${fy} / ${rf.toFixed(3)} × ${gA.toFixed(2)}`,
+    `&nbsp;&nbsp;${res(0.6 * db * fy / rf * gA)}`));
+  out += step('⑥', '인장정착길이 채택 (= A급 이음)', eq(
+    `Ld = min(정밀식 ${fmt(t.precA)}, 간편식 ${fmt(t.simpA)}), 최소 300`,
+    `&nbsp;&nbsp;= <b>${o.blocked ? '적용 불가' : fmt(t.A) + ' mm'}</b>`));
+  out += step('⑦', 'B급 인장이음길이', note('1.3을 곱한 뒤 10mm 처리 (반올림된 Ld에 곱하지 않음)') + eq(
+    `정밀식 1.3 × ${d1(base * gA / t.k)} ${res(1.3 * base * gA / t.k)}`,
+    `간편식 1.3 × ${d1(0.6 * db * fy / rf * gA)} ${res(1.3 * 0.6 * db * fy / rf * gA)}`,
+    `Ls = min(${fmt(t.precB)}, ${fmt(t.simpB)}), 최소 300 = <b>${o.blocked ? '적용 불가' : fmt(t.B) + ' mm'}</b>`));
+
+  const h0 = 0.24 * db * fy / rf;
+  out += step('⑧', '표준갈고리 정착길이 Ldh', eq(
+    `Ldh = 0.24·β·db·fy / (λ·√fck)`,
+    `&nbsp;&nbsp;= 0.24 × 1.0 × ${db} × ${fy} / ${rf.toFixed(3)} ${res(h0)}`,
+    `피복 확보 시 × 0.7 = ${d1(h0)} × 0.7 ${res(h0 * 0.7)}`,
+    `최소값 = max(8db = 8 × ${db} = ${d1(8 * db)} → ${fmt(o.h.min8)}, 150)`,
+    `→ 미확보 <b>${fmt(o.h.hk)}</b> mm · 확보 <b>${fmt(o.h.hk7)}</b> mm`));
+
+  const c1 = 0.25 * db * fy / rf, c2 = 0.043 * db * fy;
+  out += step('⑨', '압축정착길이 Ldc', eq(
+    `Ldc = max(0.25·db·fy / (λ·√fck), 0.043·db·fy, 200)`,
+    `0.25 × ${db} × ${fy} / ${rf.toFixed(3)} ${res(c1)}`,
+    `0.043 × ${db} × ${fy} ${res(c2)}`,
+    `→ max(${fmt(o.c.d1)}, ${fmt(o.c.d2)}, 200) = <b>${fmt(o.c.cd)}</b> mm`));
+
+  const s1 = (1.4 * fy / rf - 52) * db;
+  const s2 = fy <= 400 ? 0.072 * fy * db : (0.13 * fy - 24) * db;
+  out += step('⑩', '압축이음길이', eq(
+    fy <= 400 ? `기본 = 0.072·fy·db = 0.072 × ${fy} × ${db} ${res(s2)}`
+              : `기본 = (0.13·fy − 24)·db = (0.13 × ${fy} − 24) × ${db} = ${d1(0.13 * fy - 24)} × ${db} ${res(s2)}`,
+    `비교 = (1.4·fy/√fck − 52)·db = (1.4 × ${fy} / ${rf.toFixed(3)} − 52) × ${db} = ${d1(1.4 * fy / rf - 52)} × ${db} ${res(s1)}`,
+    `→ max(min(${fmt(o.c.s2)}, ${fmt(o.c.s1)}), 300) = <b>${fmt(o.c.cs)}</b> mm`) +
+    (o.c.cs > o.t.B && !o.blocked ? note('압축이음이 B급 인장이음보다 길므로 인장이음길이를 적용할 수 있습니다.') : ''));
+
+  out += note(`10mm 처리: 현재 <b>${MN}</b> (반올림 = Excel ROUND, 올림 = ROUNDUP). 각 후보값을 먼저 10mm 처리한 뒤 최소·최대를 비교합니다.`);
+  return out;
 }
 
 // ── 선택 시트 ──
@@ -461,6 +534,26 @@ $('btn-copy').onclick = () => {
   else fallback();
 };
 $('btn-bars').onclick = () => $('sec-table').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+const HISTORY = [
+  ['v1.0', '2026.10.28', [
+    'PC · 안드로이드 · 아이폰 버전 통일 (이름 "철근정착이윤기리", 계산 엔진 동일)',
+    '구조일반사항 3.2 정착/이음길이 표(도면 내장 Excel) 수식 이식 — 도면 표 7,344개 중 7,336개 일치',
+    '부재 · fck · SD400~SD600 · 직경 · 세부조건 선택, SD600 최소피복·간격과 횡철근구간 반영',
+    '10mm 처리 반올림(도면 표)·올림(안전측) 선택, 두 결과 함께 표시',
+    '계산 근거를 단계별 풀이식으로 표시 (기호 설명 → 숫자 대입 → 10mm 처리)',
+    '블루프린트 다크 화면, 아이폰 웹앱(홈 화면 추가·오프라인 실행) 지원']]
+];
+function openHistory() {
+  $('sheet-in').innerHTML = '<div class="grab"></div><h2>업데이트 내역</h2><div class="credit-s">철근정착이윤기리 · 제작 YG · 문의 yungi1013@naver.com</div><div class="hist">' +
+    HISTORY.map(([v, d, items]) => `<div class="hv"><h3>${v}<span>${d}</span></h3><ul>${items.map(i => '<li>' + i + '</li>').join('')}</ul></div>`).join('') +
+    '</div><button class="done" id="sheet-done">닫기</button>';
+  $('sheet').hidden = false; $('scrim').hidden = false;
+  $('sheet-done').onclick = closeSheet;
+}
+$('btn-ver').onclick = openHistory;
+$('btn-hist').onclick = openHistory;
+
 $('calc-h').onclick = () => { state.showCalc = !state.showCalc; render(); };
 
 render();
